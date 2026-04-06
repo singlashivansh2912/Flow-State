@@ -1,0 +1,367 @@
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Outfit', sans-serif;
+    background: #0a1a0f;
+}
+
+canvas#game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+/* ============================================
+   LOADING SCREEN
+   ============================================ */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #0d2818 0%, #1a3a2a 40%, #0f2d1a 100%);
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.loader-blob {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #a8e6cf, #56c596, #3a9d78);
+    box-shadow:
+        0 0 40px rgba(86, 197, 150, 0.4),
+        0 0 80px rgba(86, 197, 150, 0.15);
+    animation: blobPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes blobPulse {
+    0%, 100% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.15, 0.9) translateY(4px); }
+}
+
+.loader-text {
+    color: #a8e6cf;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.loader-bar-track {
+    width: 220px;
+    height: 4px;
+    background: rgba(168, 230, 207, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.loader-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #56c596, #a8e6cf);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* ============================================
+   HUD
+   ============================================ */
+#hud {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 1s ease 0.5s;
+    pointer-events: none;
+}
+
+#hud.visible {
+    opacity: 1;
+}
+
+.hud-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(10, 26, 15, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168, 230, 207, 0.12);
+    border-radius: 16px;
+}
+
+.key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(168, 230, 207, 0.1);
+    border: 1px solid rgba(168, 230, 207, 0.2);
+    color: #a8e6cf;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.hud-label {
+    color: rgba(168, 230, 207, 0.5);
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin-left: 4px;
+}
+
+.hud-sep {
+    color: rgba(168, 230, 207, 0.2);
+    font-size: 1rem;
+    margin: 0 4px;
+}
+
+.key-wide {
+    width: auto;
+    padding: 0 10px;
+    font-size: 0.65rem;
+}
+
+/* ============================================
+   INTERACTION PROMPT
+   ============================================ */
+#interact-prompt {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(10, 26, 15, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168, 230, 207, 0.2);
+    border-radius: 14px;
+    color: #a8e6cf;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+#interact-prompt.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+#interact-prompt .key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(168, 230, 207, 0.15);
+    border: 1px solid rgba(168, 230, 207, 0.3);
+    color: #a8e6cf;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* ============================================
+   SNAKE GAME OVERLAY
+   ============================================ */
+#snake-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+    pointer-events: none;
+}
+
+#snake-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.snake-window {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #0a0f0a;
+    border: 2px solid rgba(57, 255, 20, 0.3);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+        0 0 60px rgba(57, 255, 20, 0.08),
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 0 80px rgba(57, 255, 20, 0.02);
+}
+
+.snake-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(57, 255, 20, 0.06);
+    border-bottom: 1px solid rgba(57, 255, 20, 0.15);
+}
+
+.snake-title {
+    color: #39ff14;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.snake-close-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(255, 60, 95, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 60, 95, 0.1);
+    color: #ff3c5f;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.snake-close-btn:hover {
+    background: rgba(255, 60, 95, 0.25);
+    border-color: rgba(255, 60, 95, 0.6);
+}
+
+.snake-scores {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px;
+    color: #39ff14;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    background: rgba(57, 255, 20, 0.03);
+}
+
+.snake-scores strong {
+    color: #7dff5e;
+}
+
+#snake-canvas {
+    display: block;
+    border-top: 1px solid rgba(57, 255, 20, 0.1);
+    border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+}
+
+.snake-hint {
+    padding: 8px 16px;
+    text-align: center;
+    color: rgba(57, 255, 20, 0.35);
+    font-family: 'Courier New', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* Game Over Panel */
+.snake-gameover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.snake-gameover.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.snake-gameover-content {
+    text-align: center;
+    color: #ff3c5f;
+    font-family: 'Courier New', monospace;
+}
+
+.snake-gameover-content h2 {
+    font-size: 2rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+    text-shadow: 0 0 20px rgba(255, 60, 95, 0.5);
+}
+
+.snake-gameover-content p {
+    font-size: 1rem;
+    color: #39ff14;
+    margin: 6px 0;
+    letter-spacing: 0.08em;
+}
+
+.snake-gameover-content strong {
+    color: #7dff5e;
+    font-size: 1.2rem;
+}
+
+.snake-gameover-hint {
+    margin-top: 20px !important;
+    font-size: 0.75rem !important;
+    color: rgba(57, 255, 20, 0.4) !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}

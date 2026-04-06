@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isometric Forest Explorer</title>
+    <meta name="description" content="A stylized 3D isometric exploration experience with a blob character in a forest environment.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loader-content">
+            <div class="loader-blob"></div>
+            <p class="loader-text">Entering the forest…</p>
+            <div class="loader-bar-track">
+                <div class="loader-bar-fill" id="loader-bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud">
+        <div class="hud-controls">
+            <span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span>
+            <span class="hud-label">move</span>
+            <span class="hud-sep">·</span>
+            <span class="key key-wide">Space</span>
+            <span class="hud-label">jump</span>
+            <span class="hud-sep">·</span>
+            <span class="key key-wide">Shift</span>
+            <span class="hud-label">sprint</span>
+        </div>
+    </div>
+
+    <!-- Interaction Prompt -->
+    <div id="interact-prompt">
+        <span class="key">E</span>
+        <span>Interact</span>
+    </div>
+
+    <!-- Snake Game Overlay -->
+    <div id="snake-overlay">
+        <div class="snake-window">
+            <div class="snake-titlebar">
+                <span class="snake-title">🐍 SNAKE.exe</span>
+                <button id="snake-close" class="snake-close-btn" onclick="document.dispatchEvent(new CustomEvent('snake-close'))">✕</button>
+            </div>
+            <div class="snake-scores">
+                <span>SCORE: <strong id="snake-score">0</strong></span>
+                <span>HIGH: <strong id="snake-highscore">0</strong></span>
+            </div>
+            <canvas id="snake-canvas" width="400" height="400"></canvas>
+            <div class="snake-hint">WASD to move · ESC to quit</div>
+
+            <!-- Game Over Panel -->
+            <div id="snake-gameover" class="snake-gameover">
+                <div class="snake-gameover-content">
+                    <h2>GAME OVER</h2>
+                    <p>Score: <strong id="snake-final-score">0</strong></p>
+                    <p>High Score: <strong id="snake-final-high">0</strong></p>
+                    <p class="snake-gameover-hint">Press ESC or E to close</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="game-canvas"></canvas>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.163.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.163.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>
