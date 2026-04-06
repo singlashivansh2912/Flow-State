@@ -365,3 +365,171 @@ canvas#game-canvas {
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
+
+/* ============================================
+   DOOR INTERACTION PROMPT
+   ============================================ */
+#door-prompt {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(10, 26, 15, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168, 230, 207, 0.2);
+    border-radius: 14px;
+    color: #a8e6cf;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+#door-prompt.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+#door-prompt .key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(168, 230, 207, 0.15);
+    border: 1px solid rgba(168, 230, 207, 0.3);
+    color: #a8e6cf;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* ============================================
+   COMING SOON OVERLAY
+   ============================================ */
+#coming-soon-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+    pointer-events: none;
+}
+
+#coming-soon-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.coming-soon-window {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(160deg, #0d2818 0%, #1a3a2a 60%, #0f2d1a 100%);
+    border: 2px solid rgba(168, 230, 207, 0.25);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+        0 0 60px rgba(168, 230, 207, 0.06),
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 0 80px rgba(168, 230, 207, 0.02);
+    min-width: 340px;
+}
+
+.coming-soon-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(168, 230, 207, 0.06);
+    border-bottom: 1px solid rgba(168, 230, 207, 0.12);
+}
+
+.coming-soon-title {
+    color: #a8e6cf;
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.coming-soon-close-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(255, 60, 95, 0.3);
+    border-radius: 6px;
+    background: rgba(255, 60, 95, 0.1);
+    color: #ff3c5f;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.coming-soon-close-btn:hover {
+    background: rgba(255, 60, 95, 0.25);
+    border-color: rgba(255, 60, 95, 0.6);
+}
+
+.coming-soon-content {
+    padding: 40px 32px;
+    text-align: center;
+}
+
+.coming-soon-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    animation: comingSoonBounce 2s ease-in-out infinite;
+}
+
+@keyframes comingSoonBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.coming-soon-content h2 {
+    color: #a8e6cf;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    text-shadow: 0 0 30px rgba(168, 230, 207, 0.3);
+}
+
+.coming-soon-content p {
+    color: rgba(168, 230, 207, 0.6);
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    margin: 6px 0;
+}
+
+.coming-soon-hint {
+    margin-top: 24px !important;
+    font-size: 0.75rem !important;
+    color: rgba(168, 230, 207, 0.3) !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}

@@ -42,6 +42,12 @@ let verticalVelocity = 0;
 let isGrounded = true;
 let jumpSquashTimer = 0;   // for landing squash effect
 
+// Smooth stretch state (lerped each frame)
+let currentStretchZ = 1;
+let currentSlimX = 1;
+let currentSlimY = 1;
+const STRETCH_LERP_SPEED = 8.0;  // how fast the stretch transitions
+
 /**
  * Helper: raycast downward at a given XZ position and return the ground Y.
  * Returns null if nothing was hit.
@@ -270,43 +276,34 @@ export function updatePlayer(dt, camera, raycaster, terrainMeshes) {
         group.rotation.y += diff * Math.min(1, ROTATION_SPEED * dt);
     }
 
-    // --- Squash & Stretch (cube-style: more pronounced, jelly-like) ---
+    // --- Trailing stretch: elongate behind, slim down, face stays put ---
     const speedRatio = Math.min(speed / currentSpeed, 1);
-    let squashX = 1 + speedRatio * 0.12;
-    let squashY = 1 - speedRatio * 0.08;
-    let squashZ = 1 + speedRatio * 0.12;
+    // Target deformation values
+    const targetStretchZ = 1 + speedRatio * 0.15;
+    const targetSlimX    = 1 - speedRatio * 0.08;
+    const targetSlimY    = 1 - speedRatio * 0.05;
 
-    // Jump stretch: elongate vertically when rising, squash on landing
-    if (!isGrounded) {
-        const jumpStretch = THREE.MathUtils.clamp(verticalVelocity * 0.04, -0.15, 0.2);
-        squashY += jumpStretch;
-        squashX -= jumpStretch * 0.4;
-        squashZ -= jumpStretch * 0.4;
-    }
-
-    // Landing squash pop
-    if (jumpSquashTimer > 0) {
-        jumpSquashTimer -= dt;
-        const t = jumpSquashTimer / 0.15; // 1 → 0
-        squashY -= t * 0.25;
-        squashX += t * 0.15;
-        squashZ += t * 0.15;
-    }
+    // Smoothly lerp toward target values
+    const lerpFactor = 1 - Math.exp(-STRETCH_LERP_SPEED * dt);
+    currentStretchZ += (targetStretchZ - currentStretchZ) * lerpFactor;
+    currentSlimX    += (targetSlimX    - currentSlimX)    * lerpFactor;
+    currentSlimY    += (targetSlimY    - currentSlimY)    * lerpFactor;
 
     // --- Idle wobble / breathing ---
     const idleScale = 1 + Math.sin(time * 2.5) * 0.025;
     const idleBob = Math.sin(time * 2.5) * 0.015;
 
     blobMesh.scale.set(
-        squashX * idleScale,
-        squashY * idleScale,
-        squashZ * idleScale
+        currentSlimX * idleScale,
+        currentSlimY * idleScale,
+        currentStretchZ * idleScale
     );
+    // Offset mesh backward so the face (front, +Z) stays in place
+    // and the stretch extends behind (-Z)
+    const zOffset = -(currentStretchZ - 1) * CUBE_SIZE * 0.5;
+    blobMesh.position.z = zOffset;
     blobMesh.position.y = isGrounded ? idleBob : 0;
-
-    // --- Movement tilt (cube leans forward when moving) ---
-    const tiltAmount = speedRatio * 0.15;  // max ~8.5 degrees
-    blobMesh.rotation.x = THREE.MathUtils.lerp(blobMesh.rotation.x, -tiltAmount, 0.12);
+    blobMesh.rotation.x = 0;
 
 
 }

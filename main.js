@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-import { initInput, isMoving, consumeInteract } from './input.js';
+import { initInput, isMoving, consumeInteract, lockInput, unlockInput } from './input.js';
 import { createPlayer, updatePlayer, getPlayerPosition, getPlayerSpeed } from './player.js';
 import { createCamera, updateCamera, onResize } from './camera.js';
 import { createParticles, updateParticles } from './particles.js';
@@ -22,10 +22,21 @@ let terrainMeshes = [];
 let loadingDone = false;
 let arrowMesh = null;
 let arrowBaseY = 0;
+let arrowTime = 0;
 let computerMesh = null;
 let computerWorldPos = new THREE.Vector3();
+let doorMesh = null;
+let doorWorldPos = new THREE.Vector3();
 const INTERACT_RANGE = 3.0;
 let interactPrompt = null;
+let doorPrompt = null;
+let comingSoonOverlay = null;
+let comingSoonActive = false;
+
+// Boundary barriers (computed from model bounding box)
+let boundaryMin = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+let boundaryMax = new THREE.Vector3(Infinity, Infinity, Infinity);
+const BOUNDARY_MARGIN = 0.5; // inward margin from the edge
 
 // ============================================
 // INIT
@@ -77,6 +88,8 @@ function init() {
 
     // --- DOM refs ---
     interactPrompt = document.getElementById('interact-prompt');
+    doorPrompt = document.getElementById('door-prompt');
+    comingSoonOverlay = document.getElementById('coming-soon-overlay');
 
     // --- Events ---
     window.addEventListener('resize', handleResize);
@@ -84,6 +97,19 @@ function init() {
     // --- Close button for snake game ---
     document.addEventListener('snake-close', () => {
         if (isSnakeGameActive()) stopSnakeGame();
+    });
+
+    // --- Close button for coming soon popup ---
+    document.addEventListener('coming-soon-close', () => {
+        closeComingSoon();
+    });
+
+    // --- ESC / E to close coming soon ---
+    window.addEventListener('keydown', (e) => {
+        if (comingSoonActive && (e.code === 'Escape' || e.code === 'KeyE')) {
+            e.preventDefault();
+            closeComingSoon();
+        }
     });
 
     // --- Start loop ---
@@ -165,7 +191,18 @@ function loadEnvironment() {
                     computerMesh = child;
                     console.log('Found computer mesh:', child.name);
                 }
+                // Find the door mesh by name
+                if (child.name && child.name.toLowerCase().includes('door')) {
+                    doorMesh = child;
+                    console.log('Found door mesh:', child.name);
+                }
             });
+
+            // Compute model bounding box for boundary barriers
+            const bbox = new THREE.Box3().setFromObject(model);
+            boundaryMin.copy(bbox.min).addScalar(BOUNDARY_MARGIN);
+            boundaryMax.copy(bbox.max).subScalar(BOUNDARY_MARGIN);
+            console.log('Model bounds:', bbox.min, bbox.max);
 
             scene.add(model);
 
@@ -213,13 +250,13 @@ function gameLoop() {
 
     // --- Animate arrow (spin + bob) ---
     if (arrowMesh) {
-        const elapsed = clock.getElapsedTime();
+        arrowTime += dt;
         arrowMesh.rotation.z += dt * 2.0;
-        arrowMesh.position.y = arrowBaseY + Math.sin(elapsed * 2.0) * 0.3;
+        arrowMesh.position.y = arrowBaseY + Math.sin(arrowTime * 2.0) * 0.3;
     }
 
     // --- Computer interaction ---
-    if (computerMesh && !isSnakeGameActive()) {
+    if (computerMesh && !isSnakeGameActive() && !comingSoonActive) {
         // Get world position of the computer
         computerMesh.getWorldPosition(computerWorldPos);
         const dist = playerPos.distanceTo(computerWorldPos);
@@ -241,12 +278,53 @@ function gameLoop() {
         } else {
             if (interactPrompt) interactPrompt.classList.remove('visible');
         }
-    } else if (isSnakeGameActive()) {
+    } else if (isSnakeGameActive() || comingSoonActive) {
         if (interactPrompt) interactPrompt.classList.remove('visible');
+    }
+
+    // --- Door interaction ---
+    if (doorMesh && !isSnakeGameActive() && !comingSoonActive) {
+        doorMesh.getWorldPosition(doorWorldPos);
+        const doorDist = playerPos.distanceTo(doorWorldPos);
+
+        if (doorDist < INTERACT_RANGE) {
+            if (doorPrompt) doorPrompt.classList.add('visible');
+
+            if (consumeInteract()) {
+                openComingSoon();
+                if (doorPrompt) doorPrompt.classList.remove('visible');
+            }
+        } else {
+            if (doorPrompt) doorPrompt.classList.remove('visible');
+        }
+    } else if (comingSoonActive || isSnakeGameActive()) {
+        if (doorPrompt) doorPrompt.classList.remove('visible');
+    }
+
+    // --- Boundary barriers: clamp player position ---
+    if (loadingDone) {
+        playerPos.x = THREE.MathUtils.clamp(playerPos.x, boundaryMin.x, boundaryMax.x);
+        playerPos.z = THREE.MathUtils.clamp(playerPos.z, boundaryMin.z, boundaryMax.z);
     }
 
     // --- Render ---
     renderer.render(scene, camera);
+}
+
+// ============================================
+// COMING SOON POPUP
+// ============================================
+function openComingSoon() {
+    comingSoonActive = true;
+    if (comingSoonOverlay) comingSoonOverlay.classList.add('visible');
+    lockInput();
+}
+
+function closeComingSoon() {
+    if (!comingSoonActive) return;
+    comingSoonActive = false;
+    if (comingSoonOverlay) comingSoonOverlay.classList.remove('visible');
+    unlockInput();
 }
 
 // ============================================
