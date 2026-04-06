@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Isometric Forest Explorer</title>
-    <meta name="description" content="A stylized 3D isometric exploration experience with a blob character in a forest environment.">
+    <meta name="description"
+        content="A stylized 3D isometric exploration experience with a blob character in a forest environment.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
@@ -13,6 +14,49 @@
 </head>
 
 <body>
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <div class="menu-particles">
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+            <div class="menu-particle"></div>
+        </div>
+        <div class="menu-content">
+            <div class="menu-logo-wrapper">
+                <img src="./Flow-State.jpeg" alt="Flow State" class="menu-logo" />
+                <div class="menu-logo-glow"></div>
+            </div>
+            <div class="menu-buttons">
+                <button id="menu-play-btn" class="menu-btn menu-btn-play">
+                    <span class="menu-btn-icon">▶</span>
+                    <span>Play</span>
+                </button>
+                <div class="menu-toggle-row">
+                    <span class="menu-toggle-label">☀️ Day</span>
+                    <label class="menu-toggle-switch" for="night-mode-toggle">
+                        <input type="checkbox" id="night-mode-toggle" />
+                        <span class="menu-toggle-slider"></span>
+                    </label>
+                    <span class="menu-toggle-label">🌙 Night</span>
+                </div>
+            </div>
+            <p class="menu-version">v1.0 · Flow State</p>
+        </div>
+    </div>
+
+    <!-- Intro Story Screen -->
+    <div id="intro-screen">
+        <div class="intro-content">
+            <p id="intro-text" class="intro-text"></p>
+            <button id="intro-skip-btn" class="intro-skip-btn">Skip ▸</button>
+        </div>
+    </div>
+
     <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="loader-content">
@@ -55,7 +99,8 @@
         <div class="coming-soon-window">
             <div class="coming-soon-titlebar">
                 <span class="coming-soon-title">🚪 DOOR</span>
-                <button id="coming-soon-close" class="coming-soon-close-btn" onclick="document.dispatchEvent(new CustomEvent('coming-soon-close'))">✕</button>
+                <button id="coming-soon-close" class="coming-soon-close-btn"
+                    onclick="document.dispatchEvent(new CustomEvent('coming-soon-close'))">✕</button>
             </div>
             <div class="coming-soon-content">
                 <div class="coming-soon-icon">🏗️</div>
@@ -71,7 +116,8 @@
         <div class="snake-window">
             <div class="snake-titlebar">
                 <span class="snake-title">🐍 SNAKE.exe</span>
-                <button id="snake-close" class="snake-close-btn" onclick="document.dispatchEvent(new CustomEvent('snake-close'))">✕</button>
+                <button id="snake-close" class="snake-close-btn"
+                    onclick="document.dispatchEvent(new CustomEvent('snake-close'))">✕</button>
             </div>
             <div class="snake-scores">
                 <span>SCORE: <strong id="snake-score">0</strong></span>
