@@ -9,13 +9,16 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { getInputDirection, isMoving, consumeJump, isSprinting } from './input.js';
 
 // --- Config ---
-const WALK_SPEED = 6.0;
-const SPRINT_SPEED = 10.0;
+const BASE_WALK_SPEED = 6.0;
+const BASE_SPRINT_SPEED = 10.0;
+let WALK_SPEED = BASE_WALK_SPEED;
+let SPRINT_SPEED = BASE_SPRINT_SPEED;
 const ROTATION_SPEED = 10.0;
 const CUBE_SIZE = 0.7;     // width/depth of the cube
 const CUBE_HEIGHT = 0.65;    // height of the cube (slightly shorter = squat)
 const CUBE_ROUNDNESS = 0.15;    // corner rounding
-const BLOB_RADIUS = CUBE_HEIGHT / 2; // half-height for grounding
+const BASE_BLOB_RADIUS = CUBE_HEIGHT / 2; // half-height for grounding (default)
+let BLOB_RADIUS = BASE_BLOB_RADIUS;
 const BLOB_COLOR = 0xa8e6cf;
 const BLOB_COLOR_DARK = 0x56c596;
 
@@ -24,7 +27,8 @@ const JUMP_FORCE = 7.0;
 const GRAVITY = 18.0;
 
 // Collision — max height the player can walk up without jumping
-const MAX_STEP_HEIGHT = 0.45;
+const BASE_MAX_STEP_HEIGHT = 0.45;
+let MAX_STEP_HEIGHT = BASE_MAX_STEP_HEIGHT;
 
 // --- State ---
 const velocity = new THREE.Vector3();
@@ -280,14 +284,14 @@ export function updatePlayer(dt, camera, raycaster, terrainMeshes) {
     const speedRatio = Math.min(speed / currentSpeed, 1);
     // Target deformation values
     const targetStretchZ = 1 + speedRatio * 0.15;
-    const targetSlimX    = 1 - speedRatio * 0.08;
-    const targetSlimY    = 1 - speedRatio * 0.05;
+    const targetSlimX = 1 - speedRatio * 0.08;
+    const targetSlimY = 1 - speedRatio * 0.05;
 
     // Smoothly lerp toward target values
     const lerpFactor = 1 - Math.exp(-STRETCH_LERP_SPEED * dt);
     currentStretchZ += (targetStretchZ - currentStretchZ) * lerpFactor;
-    currentSlimX    += (targetSlimX    - currentSlimX)    * lerpFactor;
-    currentSlimY    += (targetSlimY    - currentSlimY)    * lerpFactor;
+    currentSlimX += (targetSlimX - currentSlimX) * lerpFactor;
+    currentSlimY += (targetSlimY - currentSlimY) * lerpFactor;
 
     // --- Idle wobble / breathing ---
     const idleScale = 1 + Math.sin(time * 2.5) * 0.025;
@@ -315,3 +319,32 @@ export function getPlayerPosition() {
 export function getPlayerSpeed() {
     return Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z);
 }
+
+/**
+ * Teleports the player to an exact world position.
+ */
+export function setPlayerPosition(x, y, z) {
+    if (!group) return;
+    group.position.set(x, y, z);
+    // Reset vertical velocity so the player doesn't keep falling/jumping
+    verticalVelocity = 0;
+    isGrounded = true;
+    // Update terrainY so grounding logic doesn't snap the player back
+    terrainY = y - BLOB_RADIUS;
+}
+
+/**
+ * Scales the player uniformly.
+ * @param {number} s - scale factor (1 = default size)
+ */
+export function setPlayerScale(s) {
+    if (!group) return;
+    group.scale.set(s, s, s);
+    // Scale hitbox/collision values proportionally
+    BLOB_RADIUS = BASE_BLOB_RADIUS * s;
+    MAX_STEP_HEIGHT = BASE_MAX_STEP_HEIGHT * s;
+    // Scale speed proportionally
+    WALK_SPEED = BASE_WALK_SPEED * s;
+    SPRINT_SPEED = BASE_SPRINT_SPEED * s;
+}
+

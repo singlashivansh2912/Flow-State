@@ -88,24 +88,61 @@
         <span>Interact</span>
     </div>
 
-    <!-- Door Interaction Prompt -->
+    <!-- Forest Door Interaction Prompt -->
     <div id="door-prompt">
         <span class="key">E</span>
         <span>Enter</span>
     </div>
 
-    <!-- Coming Soon Overlay -->
+    <!-- Maze Transition Screen (story screen between forest and maze) -->
+    <div id="maze-transition-screen">
+        <div class="intro-content">
+            <p id="maze-transition-text" class="intro-text"></p>
+            <button id="maze-transition-btn" class="intro-skip-btn">Continue ▸</button>
+        </div>
+    </div>
+
+    <!-- Maze Computer Interaction Prompt -->
+    <div id="maze-computer-prompt">
+        <span class="key">E</span>
+        <span>Interact</span>
+    </div>
+
+    <!-- Maze Exit Door Prompt -->
+    <div id="maze-door-prompt">
+        <span class="key">E</span>
+        <span>Exit</span>
+    </div>
+
+    <!-- Coming Soon Overlay (for maze computers) -->
     <div id="coming-soon-overlay">
         <div class="coming-soon-window">
             <div class="coming-soon-titlebar">
-                <span class="coming-soon-title">🚪 DOOR</span>
+                <span class="coming-soon-title">💻 MINIGAME</span>
                 <button id="coming-soon-close" class="coming-soon-close-btn"
                     onclick="document.dispatchEvent(new CustomEvent('coming-soon-close'))">✕</button>
             </div>
             <div class="coming-soon-content">
-                <div class="coming-soon-icon">🏗️</div>
+                <div class="coming-soon-icon">🎮</div>
                 <h2>Coming Soon</h2>
-                <p>This area is still under construction.</p>
+                <p>This minigame is still under development.</p>
+                <p class="coming-soon-hint">Press ESC or E to close</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maze Door Locked Overlay -->
+    <div id="maze-door-locked-overlay">
+        <div class="coming-soon-window">
+            <div class="coming-soon-titlebar">
+                <span class="coming-soon-title">🔒 LOCKED</span>
+                <button id="maze-door-locked-close" class="coming-soon-close-btn"
+                    onclick="document.dispatchEvent(new CustomEvent('maze-door-locked-close'))">✕</button>
+            </div>
+            <div class="coming-soon-content">
+                <div class="coming-soon-icon">🔒</div>
+                <h2>Door Locked</h2>
+                <p>Complete all three minigames to unlock this door.</p>
                 <p class="coming-soon-hint">Press ESC or E to close</p>
             </div>
         </div>

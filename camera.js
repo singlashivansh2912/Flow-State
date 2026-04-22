@@ -6,8 +6,8 @@
 import * as THREE from 'three';
 
 // --- Config ---
-const BASE_DISTANCE   = 14;
-const DISTANCE_MOVING = 12;    // Zoom in slightly when moving
+let BASE_DISTANCE   = 14;
+let DISTANCE_MOVING = 12;    // Zoom in slightly when moving
 const ANGLE_Y         = Math.PI / 4;       // 45° rotation
 const ANGLE_PITCH     = Math.PI / 5.5;     // ~33° downward tilt
 const FOLLOW_LERP     = 0.06;
@@ -73,4 +73,14 @@ export function onResize(aspect) {
     if (!camera) return;
     camera.aspect = aspect;
     camera.updateProjectionMatrix();
+}
+
+/**
+ * Sets the camera distance (smoothly lerps to it).
+ * @param {number} base - distance when idle
+ * @param {number} moving - distance when moving
+ */
+export function setCameraDistance(base, moving) {
+    BASE_DISTANCE = base;
+    DISTANCE_MOVING = moving;
 }

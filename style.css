@@ -1029,3 +1029,226 @@ body.night-mode .coming-soon-content h2 {
 body.night-mode .coming-soon-content p {
     color: rgba(184, 196, 240, 0.6);
 }
+
+/* ============================================
+   MAZE TRANSITION SCREEN
+   ============================================ */
+#maze-transition-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #030a05 0%, #0a1a10 40%, #050e08 100%);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+    pointer-events: none;
+}
+
+#maze-transition-screen.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+#maze-transition-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Reuse intro text styling */
+#maze-transition-screen .intro-text {
+    min-height: 60px;
+}
+
+#maze-transition-screen .intro-text.done::after {
+    display: none;
+}
+
+#maze-transition-screen .intro-skip-btn.continue {
+    color: #a8e6cf;
+    border-color: rgba(86, 197, 150, 0.4);
+    background: rgba(86, 197, 150, 0.08);
+    animation: introContPulse 2s ease-in-out infinite;
+}
+
+/* Night mode maze transition */
+body.night-mode #maze-transition-screen {
+    background: linear-gradient(160deg, #050510 0%, #0a0a20 40%, #06061a 100%);
+}
+
+body.night-mode #maze-transition-screen .intro-text {
+    color: rgba(184, 196, 240, 0.9);
+}
+
+body.night-mode #maze-transition-screen .intro-skip-btn.continue {
+    color: #b8c4f0;
+    border-color: rgba(102, 126, 234, 0.4);
+    background: rgba(102, 126, 234, 0.08);
+}
+
+/* ============================================
+   MAZE COMPUTER PROMPT
+   ============================================ */
+#maze-computer-prompt {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(10, 26, 15, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168, 230, 207, 0.2);
+    border-radius: 14px;
+    color: #a8e6cf;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+#maze-computer-prompt.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+#maze-computer-prompt .key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(168, 230, 207, 0.15);
+    border: 1px solid rgba(168, 230, 207, 0.3);
+    color: #a8e6cf;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+body.night-mode #maze-computer-prompt {
+    background: rgba(10, 10, 30, 0.8);
+    border-color: rgba(102, 126, 234, 0.2);
+    color: #b8c4f0;
+}
+
+body.night-mode #maze-computer-prompt .key {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+    color: #b8c4f0;
+}
+
+/* ============================================
+   MAZE EXIT DOOR PROMPT
+   ============================================ */
+#maze-door-prompt {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: rgba(10, 26, 15, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(168, 230, 207, 0.2);
+    border-radius: 14px;
+    color: #a8e6cf;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+#maze-door-prompt.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+#maze-door-prompt .key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(168, 230, 207, 0.15);
+    border: 1px solid rgba(168, 230, 207, 0.3);
+    color: #a8e6cf;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+body.night-mode #maze-door-prompt {
+    background: rgba(10, 10, 30, 0.8);
+    border-color: rgba(102, 126, 234, 0.2);
+    color: #b8c4f0;
+}
+
+body.night-mode #maze-door-prompt .key {
+    background: rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+    color: #b8c4f0;
+}
+
+/* ============================================
+   MAZE DOOR LOCKED OVERLAY
+   ============================================ */
+#maze-door-locked-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+    pointer-events: none;
+}
+
+#maze-door-locked-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+body.night-mode #maze-door-locked-overlay .coming-soon-window {
+    background: linear-gradient(160deg, #0a0a1a 0%, #15153a 60%, #0d0d25 100%);
+    border-color: rgba(102, 126, 234, 0.25);
+}
+
+body.night-mode #maze-door-locked-overlay .coming-soon-title {
+    color: #b8c4f0;
+}
+
+body.night-mode #maze-door-locked-overlay .coming-soon-content h2 {
+    color: #b8c4f0;
+    text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+}
+
+body.night-mode #maze-door-locked-overlay .coming-soon-content p {
+    color: rgba(184, 196, 240, 0.6);
+}
