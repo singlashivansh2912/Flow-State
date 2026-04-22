@@ -114,20 +114,15 @@
         <span>Exit</span>
     </div>
 
-    <!-- Coming Soon Overlay (for maze computers) -->
-    <div id="coming-soon-overlay">
-        <div class="coming-soon-window">
-            <div class="coming-soon-titlebar">
-                <span class="coming-soon-title">💻 MINIGAME</span>
-                <button id="coming-soon-close" class="coming-soon-close-btn"
-                    onclick="document.dispatchEvent(new CustomEvent('coming-soon-close'))">✕</button>
+    <!-- Minigame Iframe Overlay (replaces coming-soon) -->
+    <div id="minigame-overlay">
+        <div class="minigame-window">
+            <div class="minigame-titlebar">
+                <span id="minigame-title" class="coming-soon-title">💻 MINIGAME</span>
+                <button id="minigame-close" class="coming-soon-close-btn"
+                    onclick="document.dispatchEvent(new CustomEvent('minigame-close'))">✕</button>
             </div>
-            <div class="coming-soon-content">
-                <div class="coming-soon-icon">🎮</div>
-                <h2>Coming Soon</h2>
-                <p>This minigame is still under development.</p>
-                <p class="coming-soon-hint">Press ESC or E to close</p>
-            </div>
+            <iframe id="minigame-iframe" src="" allow="autoplay"></iframe>
         </div>
     </div>
 
@@ -145,6 +140,19 @@
                 <p>Complete all three minigames to unlock this door.</p>
                 <p class="coming-soon-hint">Press ESC or E to close</p>
             </div>
+        </div>
+    </div>
+
+    <!-- Win Screen Overlay -->
+    <div id="win-screen">
+        <div class="win-content">
+            <div class="win-icon">🏆</div>
+            <h1 class="win-title">YOU WIN</h1>
+            <p class="win-subtitle">All systems restored. The lab is yours.</p>
+            <button id="win-restart-btn" class="win-restart-btn"
+                onclick="document.dispatchEvent(new CustomEvent('game-restart'))">
+                <span class="win-restart-icon">↺</span> Restart
+            </button>
         </div>
     </div>
 

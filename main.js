@@ -31,15 +31,19 @@ let doorWorldPos = new THREE.Vector3();
 const INTERACT_RANGE = 3.0;
 let interactPrompt = null;
 let doorPrompt = null;
-let comingSoonOverlay = null;
-let comingSoonActive = false;
+// Minigame iframe overlay
+let minigameOverlay = null;
+let minigameIframe = null;
+let minigameTitle = null;
+let minigameActive = false;
+let activeMinigameKey = null; // tracks which chair opened the current minigame
 
 // Current area: 'forest' or 'maze'
 let currentArea = 'forest';
 
 // --- Maze objects ---
 let mazeModel = null;         // the loaded maze scene
-let mazeComputers = [];       // [{mesh, worldPos}] for Computer, Computer02, Computer03
+let mazeComputers = [];       // [{mesh, worldPos}] for chair1, chair2, chair3
 let mazeDoorMesh = null;      // maze exit door
 let mazeDoorWorldPos = new THREE.Vector3();
 let mazeSpawnPos = new THREE.Vector3(-1.326, 0, 4.7987); // fallback, overridden by 'spawn' object
@@ -55,12 +59,20 @@ let mazeComputerPrompt = null;
 let mazeDoorPrompt = null;
 let mazeDoorLockedOverlay = null;
 let mazeDoorLockedActive = false;
+let winScreen = null;
 
-// Minigame completion tracking
+// Minigame completion tracking (keys match mesh names from maze.glb)
 let minigamesCompleted = {
-    Computer: false,
-    Computer02: false,
-    Computer03: false,
+    chair1: false,
+    chair2: false,
+    chair3: false,
+};
+
+// Chair → minigame mapping
+const CHAIR_GAME_MAP = {
+    chair1: { url: './Memory Card/index.html', title: '🧠 MEMORY MATCH' },
+    chair2: { url: './Whack a Mole/index.html', title: '🔨 WHACK-A-MOLE' },
+    chair3: { url: './sunnyland-platformer-main/index.html', title: '🎮 SUNNYLAND' },
 };
 
 // Maze transition screen
@@ -136,10 +148,13 @@ function init() {
     // --- DOM refs ---
     interactPrompt = document.getElementById('interact-prompt');
     doorPrompt = document.getElementById('door-prompt');
-    comingSoonOverlay = document.getElementById('coming-soon-overlay');
+    minigameOverlay = document.getElementById('minigame-overlay');
+    minigameIframe = document.getElementById('minigame-iframe');
+    minigameTitle = document.getElementById('minigame-title');
     mazeComputerPrompt = document.getElementById('maze-computer-prompt');
     mazeDoorPrompt = document.getElementById('maze-door-prompt');
     mazeDoorLockedOverlay = document.getElementById('maze-door-locked-overlay');
+    winScreen = document.getElementById('win-screen');
     mazeTransitionScreen = document.getElementById('maze-transition-screen');
     mazeTransitionText = document.getElementById('maze-transition-text');
     mazeTransitionBtn = document.getElementById('maze-transition-btn');
@@ -152,9 +167,9 @@ function init() {
         if (isSnakeGameActive()) stopSnakeGame();
     });
 
-    // --- Close button for coming soon popup ---
-    document.addEventListener('coming-soon-close', () => {
-        closeComingSoon();
+    // --- Close button for minigame overlay ---
+    document.addEventListener('minigame-close', () => {
+        closeMinigame();
     });
 
     // --- Close button for maze door locked popup ---
@@ -162,11 +177,25 @@ function init() {
         closeMazeDoorLocked();
     });
 
-    // --- ESC / E to close popups ---
+    // --- Restart game from win screen ---
+    document.addEventListener('game-restart', () => {
+        restartGame();
+    });
+
+    // --- Listen for minigame win messages from iframes ---
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'minigame-won' && e.data.game) {
+            minigamesCompleted[e.data.game] = true;
+            console.log(`Minigame won: ${e.data.game}`, minigamesCompleted);
+            closeMinigame();
+        }
+    });
+
+    // --- ESC to close popups ---
     window.addEventListener('keydown', (e) => {
-        if (comingSoonActive && (e.code === 'Escape' || e.code === 'KeyE')) {
+        if (minigameActive && e.code === 'Escape') {
             e.preventDefault();
-            closeComingSoon();
+            closeMinigame();
         }
         if (mazeDoorLockedActive && (e.code === 'Escape' || e.code === 'KeyE')) {
             e.preventDefault();
@@ -603,7 +632,7 @@ function switchToForest() {
     }
 
     // Teleport player back to forest spawn
-    setPlayerPosition(FOREST_SPAWN.x, FOREST_SPAWN.y, FOREST_SPAWN.z);
+    setPlayerPosition(11.323, 0, 1.48797);
     setPlayerScale(1.0); // restore original size
     setCameraDistance(14, 12); // restore forest camera distance
 }
@@ -638,7 +667,7 @@ function gameLoop() {
     // =============================================
     if (currentArea === 'forest') {
         // --- Computer interaction (snake game) ---
-        if (computerMesh && !isSnakeGameActive() && !comingSoonActive && !mazeTransitionActive) {
+        if (computerMesh && !isSnakeGameActive() && !minigameActive && !mazeTransitionActive) {
             computerMesh.getWorldPosition(computerWorldPos);
             const dist = playerPos.distanceTo(computerWorldPos);
 
@@ -656,12 +685,12 @@ function gameLoop() {
             } else {
                 if (interactPrompt) interactPrompt.classList.remove('visible');
             }
-        } else if (isSnakeGameActive() || comingSoonActive || mazeTransitionActive) {
+        } else if (isSnakeGameActive() || minigameActive || mazeTransitionActive) {
             if (interactPrompt) interactPrompt.classList.remove('visible');
         }
 
         // --- Forest door interaction (triggers maze transition) ---
-        if (doorMesh && !isSnakeGameActive() && !comingSoonActive && !mazeTransitionActive) {
+        if (doorMesh && !isSnakeGameActive() && !minigameActive && !mazeTransitionActive) {
             doorMesh.getWorldPosition(doorWorldPos);
             const doorDist = playerPos.distanceTo(doorWorldPos);
 
@@ -676,7 +705,7 @@ function gameLoop() {
             } else {
                 if (doorPrompt) doorPrompt.classList.remove('visible');
             }
-        } else if (comingSoonActive || isSnakeGameActive() || mazeTransitionActive) {
+        } else if (minigameActive || isSnakeGameActive() || mazeTransitionActive) {
             if (doorPrompt) doorPrompt.classList.remove('visible');
         }
 
@@ -695,7 +724,7 @@ function gameLoop() {
 
         // --- Maze computer interactions ---
         let nearComputer = null;
-        if (!comingSoonActive && !mazeDoorLockedActive) {
+        if (!minigameActive && !mazeDoorLockedActive) {
             for (const comp of mazeComputers) {
                 comp.mesh.getWorldPosition(comp.worldPos);
                 const dist = playerPos.distanceTo(comp.worldPos);
@@ -710,7 +739,12 @@ function gameLoop() {
             if (mazeComputerPrompt) mazeComputerPrompt.classList.add('visible');
 
             if (consumeInteract()) {
-                openComingSoon();
+                const chairName = nearComputer.name.toLowerCase();
+                if (minigamesCompleted[chairName]) {
+                    // Already completed — do nothing special
+                } else {
+                    openMinigame(chairName);
+                }
                 if (mazeComputerPrompt) mazeComputerPrompt.classList.remove('visible');
             }
         } else {
@@ -718,7 +752,7 @@ function gameLoop() {
         }
 
         // --- Maze exit door interaction ---
-        if (mazeDoorMesh && !comingSoonActive && !mazeDoorLockedActive) {
+        if (mazeDoorMesh && !minigameActive && !mazeDoorLockedActive) {
             mazeDoorMesh.getWorldPosition(mazeDoorWorldPos);
             const doorDist = playerPos.distanceTo(mazeDoorWorldPos);
 
@@ -731,8 +765,8 @@ function gameLoop() {
                     // Check if all minigames are completed
                     const allCompleted = Object.values(minigamesCompleted).every(v => v);
                     if (allCompleted) {
-                        // Exit the maze — go back to forest
-                        switchToForest();
+                        // Show win screen
+                        showWinScreen();
                     } else {
                         // Show locked popup
                         openMazeDoorLocked();
@@ -741,7 +775,7 @@ function gameLoop() {
             } else {
                 if (mazeDoorPrompt) mazeDoorPrompt.classList.remove('visible');
             }
-        } else if (comingSoonActive || mazeDoorLockedActive) {
+        } else if (minigameActive || mazeDoorLockedActive) {
             if (mazeDoorPrompt) mazeDoorPrompt.classList.remove('visible');
         }
     }
@@ -791,18 +825,29 @@ function openMazeTransition() {
 }
 
 // ============================================
-// COMING SOON POPUP (for maze computers)
+// MINIGAME IFRAME OVERLAY
 // ============================================
-function openComingSoon() {
-    comingSoonActive = true;
-    if (comingSoonOverlay) comingSoonOverlay.classList.add('visible');
+function openMinigame(chairKey) {
+    const gameInfo = CHAIR_GAME_MAP[chairKey];
+    if (!gameInfo) return;
+
+    activeMinigameKey = chairKey;
+    minigameActive = true;
     lockInput();
+
+    if (minigameTitle) minigameTitle.textContent = gameInfo.title;
+    if (minigameIframe) minigameIframe.src = gameInfo.url;
+    if (minigameOverlay) minigameOverlay.classList.add('visible');
 }
 
-function closeComingSoon() {
-    if (!comingSoonActive) return;
-    comingSoonActive = false;
-    if (comingSoonOverlay) comingSoonOverlay.classList.remove('visible');
+function closeMinigame() {
+    if (!minigameActive) return;
+    minigameActive = false;
+    activeMinigameKey = null;
+
+    if (minigameOverlay) minigameOverlay.classList.remove('visible');
+    // Clear iframe src to stop the game
+    if (minigameIframe) minigameIframe.src = '';
     unlockInput();
 }
 
@@ -819,6 +864,30 @@ function closeMazeDoorLocked() {
     if (!mazeDoorLockedActive) return;
     mazeDoorLockedActive = false;
     if (mazeDoorLockedOverlay) mazeDoorLockedOverlay.classList.remove('visible');
+    unlockInput();
+}
+
+// ============================================
+// WIN SCREEN
+// ============================================
+function showWinScreen() {
+    lockInput();
+    if (mazeDoorPrompt) mazeDoorPrompt.classList.remove('visible');
+    if (winScreen) winScreen.classList.add('visible');
+}
+
+function restartGame() {
+    // Hide win screen
+    if (winScreen) winScreen.classList.remove('visible');
+
+    // Reset minigame completion
+    minigamesCompleted.chair1 = false;
+    minigamesCompleted.chair2 = false;
+    minigamesCompleted.chair3 = false;
+
+    // Switch back to forest
+    switchToForest();
+
     unlockInput();
 }
 

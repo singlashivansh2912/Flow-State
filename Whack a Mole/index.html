@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Whack-a-Mole — Sci-Fi Minigame</title>
+  <meta name="description" content="A modular low-poly sci-fi Whack-a-Mole minigame component with keyboard and mouse controls." />
+  
+  <!-- Google Fonts — Orbitron for sci-fi feel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #050810;
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+
+    /* Ambient background */
+    body {
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(0,240,255,0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(168,85,247,0.04) 0%, transparent 50%),
+        #050810;
+    }
+
+    /* ── Demo Layout ─────────────────────────────────────────── */
+    .demo-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      gap: 20px;
+    }
+
+    .demo-header {
+      text-align: center;
+    }
+
+    .demo-header h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #00f0ff, #a855f7, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .demo-header p {
+      font-size: 11px;
+      color: #64748b;
+      letter-spacing: 1px;
+    }
+
+    /* Game container */
+    #game-container {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    /* ── Controls ─────────────────────────────────────────────── */
+    .demo-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .demo-btn {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #111827, #1e293b);
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .demo-btn:hover {
+      border-color: #00f0ff;
+      color: #00f0ff;
+      box-shadow: 0 0 12px rgba(0,240,255,0.15);
+    }
+
+    .demo-btn.primary {
+      border-color: rgba(0,240,255,0.4);
+      color: #00f0ff;
+      box-shadow: 0 0 8px rgba(0,240,255,0.1);
+    }
+
+    .demo-btn.primary:hover {
+      background: linear-gradient(135deg, #0f1a2e, #162032);
+      box-shadow: 0 0 20px rgba(0,240,255,0.2);
+    }
+
+    /* ── Event Log ───────────────────────────────────────────── */
+    .demo-log-container {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .demo-log-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .demo-log {
+      width: 100%;
+      height: 120px;
+      padding: 10px 12px;
+      background: rgba(17,24,39,0.8);
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      font-family: 'Rajdhani', monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .demo-log .log-hit   { color: #22d3ee; }
+    .demo-log .log-miss  { color: #f43f5e; }
+    .demo-log .log-event { color: #a855f7; }
+    .demo-log .log-score { color: #facc15; }
+
+    /* ── Hint ────────────────────────────────────────────────── */
+    .demo-hint {
+      text-align: center;
+      font-size: 11px;
+      color: #475569;
+      letter-spacing: 0.5px;
+    }
+
+    .demo-hint kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 3px;
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="demo-wrapper">
+  <header class="demo-header">
+    <h1>Whack-a-Mole Module</h1>
+    <p>Low-Poly Sci-Fi • Modular Component Demo</p>
+  </header>
+
+  <div id="game-container"></div>
+
+  <div class="demo-controls">
+    <button class="demo-btn primary" id="btn-start">Start</button>
+    <button class="demo-btn" id="btn-pause">Pause</button>
+    <button class="demo-btn" id="btn-resume">Resume</button>
+    <button class="demo-btn" id="btn-reset">Reset</button>
+    <button class="demo-btn" id="btn-destroy">Destroy</button>
+  </div>
+
+  <p class="demo-hint">
+    Press <kbd>1</kbd>–<kbd>9</kbd> or use numpad to whack moles. Click holes with mouse too.
+  </p>
+
+  <div class="demo-log-container">
+    <div class="demo-log-title">Event Log</div>
+    <div class="demo-log" id="event-log"></div>
+  </div>
+</div>
+
+<script src="whack-a-mole.js"></script>
+<script>
+  // ── Event Log Helper ──────────────────────────────────────
+  const logEl = document.getElementById('event-log');
+
+  function log(msg, cls) {
+    const span = document.createElement('div');
+    if (cls) span.className = cls;
+    span.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    logEl.appendChild(span);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // ── Instantiate the module ────────────────────────────────
+  const container = document.getElementById('game-container');
+
+  const game = new WhackAMole(container, {
+    rows: 3,
+    cols: 3,
+    gameDuration: 30,
+    spawnInterval: [500, 1200],
+    moleVisibleTime: 800,
+    allowMissPenalty: true,
+    inputMode: 'mouse+keyboard',
+
+    // ── Callbacks ─────────────────────────────────────────
+    onGameStart: () => {
+      log('🚀 Game Started', 'log-event');
+    },
+
+    onHit: (holeIndex) => {
+      log(`✅ HIT — Hole #${holeIndex}`, 'log-hit');
+    },
+
+    onMiss: (holeIndex) => {
+      log(`❌ MISS — Hole #${holeIndex}`, 'log-miss');
+    },
+
+    onScoreChange: (score) => {
+      log(`⭐ Score → ${score}`, 'log-score');
+    },
+
+    onTargetReached: (data) => {
+      log(`🎯 TARGET REACHED! Streak of ${data.target} consecutive hits!`, 'log-event');
+    },
+
+    onGameComplete: (stats) => {
+      const status = stats.targetReached ? '✓ TARGET HIT' : '✗ TARGET MISSED';
+      log(`🏁 COMPLETE — Score: ${stats.score} | Best Streak: ${stats.bestStreak}/${stats.targetStreak} | Accuracy: ${stats.accuracy}% | ${status}`, 'log-event');
+    },
+  });
+
+  // ── Wire up control buttons ───────────────────────────────
+  document.getElementById('btn-start').addEventListener('click', () => {
+    game.startGame();
+  });
+
+  document.getElementById('btn-pause').addEventListener('click', () => {
+    game.pauseGame();
+    log('⏸ Game Paused', 'log-event');
+  });
+
+  document.getElementById('btn-resume').addEventListener('click', () => {
+    game.resumeGame();
+    log('▶ Game Resumed', 'log-event');
+  });
+
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    game.resetGame();
+    log('🔄 Game Reset', 'log-event');
+  });
+
+  document.getElementById('btn-destroy').addEventListener('click', () => {
+    game.destroyGame();
+    log('💥 Game Destroyed', 'log-event');
+  });
+</script>
+
+</body>
+</html>

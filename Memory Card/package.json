@@ -1,0 +1,12 @@
+{
+  "name": "sci-fi-memory-game",
+  "version": "1.0.0",
+  "description": "Modular 2D Memory Card Minigame",
+  "main": "memory-game.js",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci-Fi Memory Game | Minigame Component</title>
+    <link rel="stylesheet" href="memory-game.css">
+    <style>
+        body {
+            background: #050505;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .demo-controls {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        button {
+            background: transparent;
+            color: #00f2ff;
+            border: 1px solid #00f2ff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            transition: 0.3s;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: rgba(0, 242, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+        }
+
+        button.active {
+            background: #00f2ff;
+            color: black;
+        }
+
+        #event-log {
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+            height: 100px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            overflow-y: auto;
+            color: #888;
+        }
+
+        .log-entry { margin-bottom: 4px; }
+        .log-entry span { color: #00f2ff; }
+
+        h1 {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 2rem;
+            color: #00f2ff;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .integration-hint {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            color: #555;
+            max-width: 800px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        code {
+            display: block;
+            background: #111;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: left;
+            margin-top: 1rem;
+            color: #bbb;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Neural Match Protocol</h1>
+
+    <div class="demo-controls">
+        <button onclick="changeDifficulty(4, 4, this)" class="active">4x4 (Easy)</button>
+        <button onclick="changeDifficulty(6, 4, this)">6x4 (Medium)</button>
+        <button onclick="changeDifficulty(6, 6, this)">6x6 (Hard)</button>
+        <button onclick="game.resetGame()" style="border-color: #ff00ff; color: #ff00ff;">Reset</button>
+    </div>
+
+    <!-- Container for the minigame -->
+    <div id="game-mount-point"></div>
+
+    <div id="event-log">
+        <div class="log-entry">> System initialized... awaiting sequence start.</div>
+    </div>
+
+    <div class="integration-hint">
+        Modular Integration Snippet:
+        <code>
+import { MemoryGame } from './memory-game.js';<br>
+const game = new MemoryGame(document.getElementById('mount-point'), {<br>
+&nbsp;&nbsp;onGameComplete: (stats) => console.log('Win!', stats),<br>
+&nbsp;&nbsp;onMatch: (id) => playSound('match')<br>
+});<br>
+game.startGame({ rows: 4, cols: 4 });
+        </code>
+    </div>
+
+    <script type="module">
+        import { MemoryGame } from './memory-game.js';
+
+        const log = document.getElementById('event-log');
+        const mountPoint = document.getElementById('game-mount-point');
+
+        function addLog(msg, data = '') {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `> <span>${new Date().toLocaleTimeString()}</span> ${msg} ${data ? JSON.stringify(data) : ''}`;
+            log.prepend(entry);
+        }
+
+        // Initialize Game
+        window.game = new MemoryGame(mountPoint, {
+            rows: 4,
+            cols: 4,
+            onGameStart: () => addLog('Memory sequence started.'),
+            onMatch: (data) => addLog('Neural link established: ', data.pairId),
+            onMismatch: () => addLog('Connection failed. Retrying...'),
+            onGameComplete: (stats) => {
+                addLog('CRITICAL SYNC COMPLETE!', stats);
+                alert(`Mission Accomplished!\nTime: ${stats.time}s\nMoves: ${stats.moves}`);
+            }
+        });
+
+        // Trigger start
+        window.game.startGame();
+
+        window.changeDifficulty = (r, c, btn) => {
+            document.querySelectorAll('.demo-controls button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            window.game.startGame({ rows: r, cols: c });
+        };
+    </script>
+</body>
+</html>
