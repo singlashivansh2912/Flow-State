@@ -1,14 +1,14 @@
 window.addEventListener('keydown', (event) => {
-  // Allow restart when game is won
+  // Allow restart when game is won or player is dead
   if (event.key === 'r' || event.key === 'R') {
-    if (gameWon) {
+    if (gameWon || isDead) {
       init()
     }
     return
   }
 
-  // Block input during win state
-  if (gameWon) return
+  // Block input during win or death state
+  if (gameWon || isDead) return
 
   switch (event.key) {
     case 'w':

@@ -723,6 +723,39 @@ const WhackAMole = (function () {
   .wam-hud { padding: 8px 10px; }
   .wam-hud-value { font-size: 18px; }
 }
+
+/* ── Touch / Mobile ──────────────────────────────────── */
+.wam-hole {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (pointer: coarse) {
+  .wam-hole {
+    min-height: 60px;
+  }
+  .wam-hole-number {
+    display: none; /* hide keyboard number labels on touch */
+  }
+  .wam-grid {
+    gap: 8px;
+    padding: 12px;
+  }
+  .wam-hud-label {
+    font-size: 8px;
+  }
+  .wam-hud-value {
+    font-size: 18px;
+  }
+  .wam-hud {
+    padding: 8px 10px;
+    margin-bottom: 8px;
+  }
+  .wam-streak-bar-wrap {
+    padding: 4px 10px 0;
+    margin-bottom: 4px;
+  }
+}
       `;
 
       this._styleEl = document.createElement('style');

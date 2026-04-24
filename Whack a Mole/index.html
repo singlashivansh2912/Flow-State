@@ -163,6 +163,34 @@
       font-size: 10px;
       color: #94a3b8;
     }
+
+    /* ── Mobile / Touch Optimizations ─────────────────────── */
+    @media (pointer: coarse), (max-width: 540px) {
+      .demo-wrapper {
+        padding: 12px 8px;
+        gap: 10px;
+      }
+      /* Hide dev-only buttons, keep Start & Reset */
+      #btn-pause, #btn-resume, #btn-destroy {
+        display: none;
+      }
+      .demo-log-container {
+        display: none; /* hide event log on mobile */
+      }
+      .demo-header p {
+        display: none;
+      }
+      .demo-hint {
+        font-size: 10px;
+      }
+      .demo-controls {
+        gap: 6px;
+      }
+      .demo-btn {
+        padding: 8px 16px;
+        font-size: 9px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -183,7 +211,7 @@
     <button class="demo-btn" id="btn-destroy">Destroy</button>
   </div>
 
-  <p class="demo-hint">
+  <p class="demo-hint" id="wam-hint">
     Press <kbd>1</kbd>–<kbd>9</kbd> or use numpad to whack moles. Click holes with mouse too.
   </p>
 
@@ -269,6 +297,22 @@
     game.destroyGame();
     log('💥 Game Destroyed', 'log-event');
   });
+
+  // ── Mobile Touch Optimizations ────────────────────────────
+  (function mobileOptimize() {
+    const isMobile = ('ontouchstart' in window) ||
+      (navigator.maxTouchPoints > 0) ||
+      window.matchMedia('(pointer: coarse)').matches;
+
+    if (isMobile) {
+      // Update hint text for touch users
+      const hint = document.getElementById('wam-hint');
+      if (hint) hint.textContent = 'Tap the glowing orbs to whack them!';
+
+      // Auto-start the game on mobile (especially in iframe)
+      game.startGame();
+    }
+  })();
 </script>
 
 </body>

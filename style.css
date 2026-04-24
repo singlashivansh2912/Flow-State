@@ -1403,4 +1403,226 @@ body.night-mode #maze-door-locked-overlay .coming-soon-content p {
 
 .win-restart-icon {
     font-size: 1.4rem;
+}
+
+/* ============================================
+   TOUCH CONTROLS (mobile only)
+   ============================================ */
+
+/* Hide keyboard HUD on touch devices */
+body.touch-device #hud {
+    display: none !important;
+}
+
+/* --- Virtual Joystick --- */
+#touch-joystick-base {
+    position: fixed;
+    bottom: 36px;
+    left: 30px;
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background: rgba(10, 26, 15, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(168, 230, 207, 0.18);
+    box-shadow:
+        0 0 30px rgba(86, 197, 150, 0.08),
+        inset 0 0 20px rgba(168, 230, 207, 0.04);
+    z-index: 300;
+    touch-action: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Directional indicators */
+    overflow: hidden;
+}
+
+#touch-joystick-base::before {
+    content: '';
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    border: 1px dashed rgba(168, 230, 207, 0.08);
+    pointer-events: none;
+}
+
+#touch-joystick-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 38%, rgba(168, 230, 207, 0.55), rgba(86, 197, 150, 0.35));
+    border: 1.5px solid rgba(168, 230, 207, 0.35);
+    box-shadow:
+        0 0 16px rgba(86, 197, 150, 0.25),
+        0 2px 8px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    transition: box-shadow 0.15s ease;
+    will-change: transform;
+}
+
+/* --- Action Buttons Container --- */
+#touch-buttons {
+    position: fixed;
+    bottom: 36px;
+    right: 24px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    touch-action: none;
+}
+
+/* --- Individual Button Base --- */
+.touch-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid rgba(168, 230, 207, 0.2);
+    border-radius: 50%;
+    background: rgba(10, 26, 15, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #a8e6cf;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    box-shadow: 0 0 15px rgba(86, 197, 150, 0.06);
+    outline: none;
+    padding: 0;
+}
+
+.touch-btn:active,
+.touch-btn.active {
+    background: rgba(86, 197, 150, 0.25);
+    border-color: rgba(168, 230, 207, 0.5);
+    box-shadow: 0 0 25px rgba(86, 197, 150, 0.3);
+}
+
+.touch-btn-icon {
+    font-size: 1.3rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.touch-btn-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.55rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-top: 2px;
+    pointer-events: none;
+}
+
+/* Jump — largest */
+.touch-btn-jump {
+    width: 72px;
+    height: 72px;
+    border-color: rgba(168, 230, 207, 0.28);
+}
+
+.touch-btn-jump.active {
+    background: rgba(86, 197, 150, 0.3);
+    box-shadow: 0 0 30px rgba(86, 197, 150, 0.4);
+}
+
+/* Sprint — medium, toggle highlight */
+.touch-btn-sprint {
+    width: 60px;
+    height: 60px;
+}
+
+.touch-btn-sprint.active {
+    background: rgba(255, 200, 50, 0.2);
+    border-color: rgba(255, 200, 50, 0.5);
+    box-shadow: 0 0 25px rgba(255, 200, 50, 0.25);
+    color: #ffd760;
+}
+
+/* Interact — medium */
+.touch-btn-interact {
+    width: 60px;
+    height: 60px;
+}
+
+.touch-btn-interact.active {
+    background: rgba(100, 180, 255, 0.2);
+    border-color: rgba(100, 180, 255, 0.5);
+    box-shadow: 0 0 25px rgba(100, 180, 255, 0.25);
+    color: #88c8ff;
+}
+
+/* Night mode touch controls */
+body.night-mode #touch-joystick-base {
+    background: rgba(10, 10, 30, 0.5);
+    border-color: rgba(102, 126, 234, 0.18);
+    box-shadow: 0 0 30px rgba(102, 126, 234, 0.08);
+}
+
+body.night-mode #touch-joystick-knob {
+    background: radial-gradient(circle at 40% 38%, rgba(140, 160, 240, 0.5), rgba(102, 126, 234, 0.3));
+    border-color: rgba(140, 160, 240, 0.35);
+    box-shadow: 0 0 16px rgba(102, 126, 234, 0.25);
+}
+
+body.night-mode .touch-btn {
+    background: rgba(10, 10, 30, 0.5);
+    border-color: rgba(102, 126, 234, 0.2);
+    color: #b8c4f0;
+}
+
+body.night-mode .touch-btn.active {
+    background: rgba(102, 126, 234, 0.25);
+    border-color: rgba(140, 160, 240, 0.5);
+}
+
+/* Hide touch controls when overlays are active */
+body.touch-device #touch-joystick-base,
+body.touch-device #touch-buttons {
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+/* On very small screens, make controls smaller */
+@media (max-height: 500px) {
+    #touch-joystick-base {
+        width: 100px;
+        height: 100px;
+        bottom: 20px;
+        left: 16px;
+    }
+    #touch-joystick-knob {
+        width: 40px;
+        height: 40px;
+    }
+    .touch-btn-jump {
+        width: 58px;
+        height: 58px;
+    }
+    .touch-btn-sprint,
+    .touch-btn-interact {
+        width: 48px;
+        height: 48px;
+    }
+    #touch-buttons {
+        bottom: 20px;
+        right: 16px;
+        gap: 10px;
+    }
+    .touch-btn-icon {
+        font-size: 1rem;
+    }
+    .touch-btn-label {
+        display: none;
+    }
 }

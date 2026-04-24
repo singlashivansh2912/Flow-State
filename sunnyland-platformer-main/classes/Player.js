@@ -301,7 +301,13 @@ class Player {
 
     // Update vertical position and check collisions
     this.updateVerticalPosition(deltaTime)
+
+    // Reset isOnGround before vertical collision detection
+    // (it will be set back to true by checkForVerticalCollisions if grounded)
+    this.isOnGround = false
     this.checkForVerticalCollisions(collisionBlocks)
+    // Re-check platforms after position update (they also set isOnGround)
+    this.checkPlatformCollisions(platforms, deltaTime)
 
     this.determineDirection()
     this.switchSprites()
@@ -479,6 +485,5 @@ class Player {
         return
       }
     }
-    this.isOnGround = false
   }
 }

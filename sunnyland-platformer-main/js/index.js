@@ -252,11 +252,17 @@ let _winTime = 0
 // Sci-fi ambient animation time
 let _sciFiTime = 0
 
+// Death / Game Over screen
+let isDead = false
+let _deathTime = 0
+
 function init() {
   gems = []
   gemCount = 0
   gameWon = false
   _winTime = 0
+  isDead = false
+  _deathTime = 0
   gemUI = new Sprite({
     x: 13,
     y: 36,
@@ -469,7 +475,8 @@ function animate(backgroundCanvas) {
         if (!player.isInvincible && fullHearts.length > 0) {
           fullHearts[fullHearts.length - 1].depleted = true
         } else if (fullHearts.length === 0) {
-          init()
+          isDead = true
+          _deathTime = 0
         }
 
         player.setIsInvincible()
@@ -581,15 +588,20 @@ function animate(backgroundCanvas) {
     camera.x = scrollPostDistance
   }
 
-  if (player.y < SCROLL_POST_TOP && camera.y > 0) {
-    const scrollPostDistance = SCROLL_POST_TOP - player.y
-    camera.y = scrollPostDistance
-  }
+  // Vertical camera tracking with dead zone to prevent jitter
+  // Only move camera when player is clearly above or below thresholds
+  const targetCamY = (() => {
+    if (player.y < SCROLL_POST_TOP) {
+      return SCROLL_POST_TOP - player.y
+    } else if (player.y > SCROLL_POST_BOTTOM) {
+      return -(player.y - SCROLL_POST_BOTTOM)
+    }
+    // Inside dead zone — smoothly lerp back to 0
+    return 0
+  })()
 
-  if (player.y > SCROLL_POST_BOTTOM) {
-    const scrollPostDistance = player.y - SCROLL_POST_BOTTOM
-    camera.y = -scrollPostDistance
-  }
+  // Smoothly interpolate camera Y to prevent sudden jumps
+  camera.y += (targetCamY - camera.y) * 0.1
 
   // Snap camera to whole pixels to prevent sub-pixel jitter
   const camX = Math.round(camera.x)
@@ -689,6 +701,59 @@ function animate(backgroundCanvas) {
         c.shadowColor = 'rgba(255, 255, 255, 0.6)'
         c.shadowBlur = 8
         c.fillText('PRESS R TO RESTART', 512 / 2, 320 / 2)
+      }
+
+      c.textAlign = 'start'
+    }
+
+    c.restore()
+  }
+
+  // Death / Game Over screen overlay
+  if (isDead) {
+    _deathTime += deltaTime
+    const fadeAlpha = Math.min(_deathTime * 1.2, 0.88)
+
+    c.save()
+    c.scale(dpr + 1, dpr + 1)
+
+    // Dark red overlay
+    c.fillStyle = `rgba(15, 2, 2, ${fadeAlpha})`
+    c.fillRect(0, 0, 1024, 576)
+
+    if (_deathTime > 0.4) {
+      const textAlpha = Math.min((_deathTime - 0.4) * 2, 1)
+      c.globalAlpha = textAlpha
+      c.textAlign = 'center'
+
+      // Glitch-style GAME OVER
+      c.font = 'bold 36px monospace'
+      c.fillStyle = '#ff3050'
+      c.shadowColor = 'rgba(255, 48, 80, 0.9)'
+      c.shadowBlur = 25
+      c.fillText('GAME OVER', 512 / 2, 230 / 2)
+
+      // Score
+      c.font = '13px monospace'
+      c.fillStyle = '#ff8090'
+      c.shadowBlur = 8
+      c.fillText(`GEMS COLLECTED: ${gemCount} / ${TARGET_GEMS}`, 512 / 2, 270 / 2)
+
+      // Restart prompt
+      if (_deathTime > 1.5) {
+        const pulseAlpha = 0.4 + Math.sin(_deathTime * 3) * 0.4
+        c.globalAlpha = pulseAlpha
+        c.font = '11px monospace'
+        c.fillStyle = '#ffffff'
+        c.shadowColor = 'rgba(255, 255, 255, 0.5)'
+        c.shadowBlur = 6
+        c.fillText('PRESS R TO RETRY', 512 / 2, 315 / 2)
+
+        // Touch hint
+        const isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0
+        if (isMobile) {
+          c.fillText('OR TAP TO RETRY', 512 / 2, 338 / 2)
+        }
       }
 
       c.textAlign = 'start'

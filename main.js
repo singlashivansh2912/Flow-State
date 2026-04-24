@@ -11,6 +11,7 @@ import { createPlayer, updatePlayer, getPlayerPosition, getPlayerSpeed, setPlaye
 import { createCamera, updateCamera, onResize, setCameraDistance } from './camera.js';
 import { createParticles, updateParticles } from './particles.js';
 import { startSnakeGame, stopSnakeGame, isSnakeGameActive } from './snake.js';
+import { initTouchControls, getIsMobile } from './touch-controls.js';
 
 // ============================================
 // GLOBALS
@@ -139,6 +140,9 @@ function init() {
     // --- Input ---
     initInput();
 
+    // --- Touch Controls (mobile only) ---
+    initTouchControls();
+
     // --- Player ---
     createPlayer(scene);
 
@@ -187,7 +191,7 @@ function init() {
         if (e.data && e.data.type === 'minigame-won' && e.data.game) {
             minigamesCompleted[e.data.game] = true;
             console.log(`Minigame won: ${e.data.game}`, minigamesCompleted);
-            closeMinigame();
+            showMinigameCompleteBanner(e.data.game);
         }
     });
 
@@ -838,6 +842,129 @@ function openMinigame(chairKey) {
     if (minigameTitle) minigameTitle.textContent = gameInfo.title;
     if (minigameIframe) minigameIframe.src = gameInfo.url;
     if (minigameOverlay) minigameOverlay.classList.add('visible');
+}
+
+// ============================================
+// MINIGAME COMPLETION BANNER
+// ============================================
+function showMinigameCompleteBanner(gameKey) {
+    // Inject styles once
+    if (!document.getElementById('minigame-complete-styles')) {
+        const style = document.createElement('style');
+        style.id = 'minigame-complete-styles';
+        style.textContent = `
+            .mg-complete-banner {
+                position: fixed;
+                inset: 0;
+                z-index: 10000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: rgba(5, 12, 8, 0.92);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                opacity: 0;
+                animation: mgcFadeIn 0.5s ease forwards;
+                pointer-events: auto;
+            }
+            @keyframes mgcFadeIn {
+                from { opacity: 0; }
+                to   { opacity: 1; }
+            }
+            .mg-complete-icon {
+                font-size: 3rem;
+                margin-bottom: 12px;
+                animation: mgcBounce 0.6s ease 0.3s both;
+            }
+            @keyframes mgcBounce {
+                0%   { transform: scale(0); }
+                60%  { transform: scale(1.3); }
+                100% { transform: scale(1); }
+            }
+            .mg-complete-title {
+                font-family: 'Outfit', sans-serif;
+                font-size: 1.8rem;
+                font-weight: 800;
+                letter-spacing: 0.15em;
+                text-transform: uppercase;
+                background: linear-gradient(90deg, #a8e6cf, #56c596, #a8e6cf);
+                background-size: 200% 100%;
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+                animation: mgcShimmer 1.5s ease infinite;
+                text-shadow: none;
+                margin-bottom: 8px;
+            }
+            @keyframes mgcShimmer {
+                0%   { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+            .mg-complete-sub {
+                font-family: 'Outfit', sans-serif;
+                font-size: 0.85rem;
+                color: rgba(168, 230, 207, 0.6);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+            }
+            .mg-complete-bar {
+                width: 120px;
+                height: 3px;
+                margin-top: 18px;
+                background: rgba(168, 230, 207, 0.15);
+                border-radius: 2px;
+                overflow: hidden;
+            }
+            .mg-complete-bar-fill {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg, #56c596, #a8e6cf);
+                border-radius: 2px;
+                animation: mgcBarFill 2.5s ease-out forwards;
+            }
+            @keyframes mgcBarFill {
+                from { width: 0%; }
+                to   { width: 100%; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Get game title
+    const gameInfo = CHAIR_GAME_MAP[gameKey];
+    const gameName = gameInfo ? gameInfo.title : 'MINIGAME';
+
+    // Create banner
+    const banner = document.createElement('div');
+    banner.className = 'mg-complete-banner';
+    banner.innerHTML = `
+        <div class="mg-complete-icon">✅</div>
+        <div class="mg-complete-title">COMPLETE!</div>
+        <div class="mg-complete-sub">${gameName}</div>
+        <div class="mg-complete-bar"><div class="mg-complete-bar-fill"></div></div>
+    `;
+    document.body.appendChild(banner);
+
+    // Auto-close after 2.5s
+    setTimeout(() => {
+        banner.style.animation = 'mgcFadeIn 0.3s ease reverse forwards';
+        setTimeout(() => {
+            banner.remove();
+            closeMinigame();
+        }, 300);
+    }, 2500);
+
+    // Also allow tap/click to dismiss early
+    banner.addEventListener('click', () => {
+        banner.remove();
+        closeMinigame();
+    });
+    banner.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        banner.remove();
+        closeMinigame();
+    }, { passive: false });
 }
 
 function closeMinigame() {

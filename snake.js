@@ -1,6 +1,7 @@
 /**
  * Snake Mini-Game
  * A classic Snake game rendered on an HTML canvas, controlled with WASD.
+ * Supports touch controls: swipe gestures + on-screen d-pad for mobile.
  * Manages its own input while active so it doesn't conflict with the player.
  */
 
@@ -45,6 +46,13 @@ let gameOverEl   = null;
 let finalScoreEl = null;
 let finalHighEl  = null;
 
+// --- Touch controls ---
+let isTouchDevice = false;
+let touchDpad    = null;
+let swipeStartX  = 0;
+let swipeStartY  = 0;
+const SWIPE_THRESHOLD = 20; // minimum px to register a swipe
+
 // ========================================
 // PUBLIC API
 // ========================================
@@ -83,6 +91,9 @@ export function startSnakeGame() {
     // Start input listener
     window.addEventListener('keydown', _onKey);
 
+    // Touch controls
+    _initTouchControls();
+
     // Start game tick
     _draw();
     tickTimer = setInterval(_tick, TICK_MS);
@@ -96,6 +107,7 @@ export function stopSnakeGame() {
     tickTimer = null;
 
     window.removeEventListener('keydown', _onKey);
+    _removeTouchControls();
 
     // Hide overlay
     overlay.classList.remove('visible');
@@ -230,7 +242,19 @@ function _gameOver() {
     finalHighEl.textContent  = highScore;
     gameOverEl.classList.add('visible');
 
+    // Allow tap-to-close on mobile
+    gameOverEl.addEventListener('touchstart', _onGameOverTap, { passive: false });
+    gameOverEl.addEventListener('click', _onGameOverTap);
+
     _draw(); // draw final state with red tint
+}
+
+function _onGameOverTap(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    gameOverEl.removeEventListener('touchstart', _onGameOverTap);
+    gameOverEl.removeEventListener('click', _onGameOverTap);
+    stopSnakeGame();
 }
 
 function _updateScoreDisplay() {
@@ -306,4 +330,187 @@ function _fillCell(cx, cy, inset) {
         CELL_PX - inset * 2,
         CELL_PX - inset * 2
     );
+}
+
+// ========================================
+// TOUCH CONTROLS
+// ========================================
+
+function _detectTouch() {
+    return ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints > 0) ||
+        window.matchMedia('(pointer: coarse)').matches;
+}
+
+function _initTouchControls() {
+    isTouchDevice = _detectTouch();
+    if (!isTouchDevice) return;
+
+    // --- Swipe detection on canvas ---
+    if (canvas) {
+        canvas.addEventListener('touchstart', _onSwipeStart, { passive: false });
+        canvas.addEventListener('touchend', _onSwipeEnd, { passive: false });
+    }
+
+    // --- On-screen D-pad ---
+    _createDpad();
+}
+
+function _removeTouchControls() {
+    if (canvas) {
+        canvas.removeEventListener('touchstart', _onSwipeStart);
+        canvas.removeEventListener('touchend', _onSwipeEnd);
+    }
+    if (touchDpad && touchDpad.parentNode) {
+        touchDpad.parentNode.removeChild(touchDpad);
+        touchDpad = null;
+    }
+}
+
+function _onSwipeStart(e) {
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    swipeStartX = t.clientX;
+    swipeStartY = t.clientY;
+}
+
+function _onSwipeEnd(e) {
+    if (!active || gameOver) {
+        if (gameOver) stopSnakeGame();
+        return;
+    }
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    const dx = t.clientX - swipeStartX;
+    const dy = t.clientY - swipeStartY;
+
+    if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal swipe
+        if (dx > 0 && dir.x !== -1) nextDir = { x: 1, y: 0 };
+        else if (dx < 0 && dir.x !== 1) nextDir = { x: -1, y: 0 };
+    } else {
+        // Vertical swipe
+        if (dy > 0 && dir.y !== -1) nextDir = { x: 0, y: 1 };
+        else if (dy < 0 && dir.y !== 1) nextDir = { x: 0, y: -1 };
+    }
+}
+
+function _createDpad() {
+    if (touchDpad) return;
+
+    // Inject d-pad styles once
+    if (!document.getElementById('snake-touch-styles')) {
+        const style = document.createElement('style');
+        style.id = 'snake-touch-styles';
+        style.textContent = `
+            .snake-dpad {
+                display: grid;
+                grid-template-columns: 52px 52px 52px;
+                grid-template-rows: 52px 52px;
+                gap: 6px;
+                justify-content: center;
+                padding: 10px 0 6px;
+            }
+            .snake-dpad-btn {
+                width: 52px;
+                height: 52px;
+                border-radius: 10px;
+                background: rgba(57, 255, 20, 0.08);
+                border: 1.5px solid rgba(57, 255, 20, 0.25);
+                color: #39ff14;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                touch-action: none;
+                -webkit-tap-highlight-color: transparent;
+                user-select: none;
+                transition: background 0.1s, box-shadow 0.1s;
+            }
+            .snake-dpad-btn:active, .snake-dpad-btn.active {
+                background: rgba(57, 255, 20, 0.25);
+                box-shadow: 0 0 18px rgba(57, 255, 20, 0.35);
+            }
+            .snake-dpad-exit {
+                background: rgba(255, 60, 95, 0.12) !important;
+                border-color: rgba(255, 60, 95, 0.35) !important;
+                color: #ff3c5f !important;
+                font-size: 1rem;
+            }
+            .snake-dpad-exit:active {
+                background: rgba(255, 60, 95, 0.3) !important;
+                box-shadow: 0 0 18px rgba(255, 60, 95, 0.4) !important;
+            }
+            .snake-dpad-spacer { visibility: hidden; }
+            .snake-dpad-close {
+                display: block;
+                text-align: center;
+                color: rgba(57, 255, 20, 0.35);
+                font-family: 'Courier New', monospace;
+                font-size: 0.65rem;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                padding: 4px 0 2px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    touchDpad = document.createElement('div');
+    touchDpad.innerHTML = `
+        <div class="snake-dpad">
+            <div class="snake-dpad-spacer"></div>
+            <button class="snake-dpad-btn" data-dir="up">▲</button>
+            <div class="snake-dpad-spacer"></div>
+            <button class="snake-dpad-btn" data-dir="left">◀</button>
+            <button class="snake-dpad-btn snake-dpad-exit" data-action="exit">✕</button>
+            <button class="snake-dpad-btn" data-dir="right">▶</button>
+        </div>
+        <div class="snake-dpad">
+            <div class="snake-dpad-spacer"></div>
+            <button class="snake-dpad-btn" data-dir="down">▼</button>
+            <div class="snake-dpad-spacer"></div>
+        </div>
+        <div class="snake-dpad-close">Swipe or tap arrows · Center ✕ to exit</div>
+    `;
+
+    // Insert d-pad into the snake-window (after canvas)
+    const snakeWindow = overlay.querySelector('.snake-window');
+    if (snakeWindow) {
+        // Replace the keyboard hint text
+        const hint = snakeWindow.querySelector('.snake-hint');
+        if (hint) hint.style.display = 'none';
+        snakeWindow.appendChild(touchDpad);
+    }
+
+    // Bind d-pad buttons
+    touchDpad.querySelectorAll('.snake-dpad-btn[data-dir]').forEach(btn => {
+        btn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!active) return;
+            if (gameOver) { stopSnakeGame(); return; }
+            btn.classList.add('active');
+            const d = btn.dataset.dir;
+            if (d === 'up'    && dir.y !== 1)  nextDir = { x: 0, y: -1 };
+            if (d === 'down'  && dir.y !== -1) nextDir = { x: 0, y: 1 };
+            if (d === 'left'  && dir.x !== 1)  nextDir = { x: -1, y: 0 };
+            if (d === 'right' && dir.x !== -1) nextDir = { x: 1, y: 0 };
+        }, { passive: false });
+        btn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            btn.classList.remove('active');
+        }, { passive: false });
+    });
+
+    // Bind exit button
+    const exitBtn = touchDpad.querySelector('[data-action="exit"]');
+    if (exitBtn) {
+        exitBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            stopSnakeGame();
+        }, { passive: false });
+    }
 }
