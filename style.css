@@ -9,7 +9,8 @@
     box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -65,8 +66,15 @@ canvas#game-canvas {
 }
 
 @keyframes blobPulse {
-    0%, 100% { transform: scale(1) translateY(0); }
-    50% { transform: scale(1.15, 0.9) translateY(4px); }
+
+    0%,
+    100% {
+        transform: scale(1) translateY(0);
+    }
+
+    50% {
+        transform: scale(1.15, 0.9) translateY(4px);
+    }
 }
 
 .loader-text {
@@ -237,19 +245,21 @@ canvas#game-canvas {
     flex-direction: column;
     background: #0a0f0a;
     border: 2px solid rgba(57, 255, 20, 0.3);
-    border-radius: 16px;
+    border-radius: clamp(8px, 2vmin, 16px);
     overflow: hidden;
     box-shadow:
         0 0 60px rgba(57, 255, 20, 0.08),
         0 20px 60px rgba(0, 0, 0, 0.5),
         inset 0 0 80px rgba(57, 255, 20, 0.02);
+    max-width: 95vw;
+    max-height: 95vh;
 }
 
 .snake-titlebar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: clamp(6px, 1.5vmin, 10px) clamp(10px, 2.5vmin, 16px);
     background: rgba(57, 255, 20, 0.06);
     border-bottom: 1px solid rgba(57, 255, 20, 0.15);
 }
@@ -257,20 +267,20 @@ canvas#game-canvas {
 .snake-title {
     color: #39ff14;
     font-family: 'Courier New', monospace;
-    font-size: 0.85rem;
+    font-size: clamp(0.6rem, 2vmin, 0.85rem);
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
 
 .snake-close-btn {
-    width: 28px;
-    height: 28px;
+    width: clamp(22px, 5vmin, 28px);
+    height: clamp(22px, 5vmin, 28px);
     border: 1px solid rgba(255, 60, 95, 0.3);
     border-radius: 6px;
     background: rgba(255, 60, 95, 0.1);
     color: #ff3c5f;
-    font-size: 0.85rem;
+    font-size: clamp(0.65rem, 1.8vmin, 0.85rem);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -286,10 +296,10 @@ canvas#game-canvas {
 .snake-scores {
     display: flex;
     justify-content: space-between;
-    padding: 8px 16px;
+    padding: clamp(4px, 1.2vmin, 8px) clamp(10px, 2.5vmin, 16px);
     color: #39ff14;
     font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
+    font-size: clamp(0.6rem, 1.8vmin, 0.8rem);
     letter-spacing: 0.08em;
     background: rgba(57, 255, 20, 0.03);
 }
@@ -302,14 +312,16 @@ canvas#game-canvas {
     display: block;
     border-top: 1px solid rgba(57, 255, 20, 0.1);
     border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+    width: clamp(200px, 55vmin, 400px);
+    height: clamp(200px, 55vmin, 400px);
 }
 
 .snake-hint {
-    padding: 8px 16px;
+    padding: clamp(4px, 1vmin, 8px) clamp(10px, 2.5vmin, 16px);
     text-align: center;
     color: rgba(57, 255, 20, 0.35);
     font-family: 'Courier New', monospace;
-    font-size: 0.7rem;
+    font-size: clamp(0.5rem, 1.4vmin, 0.7rem);
     letter-spacing: 0.1em;
     text-transform: uppercase;
 }
@@ -340,27 +352,27 @@ canvas#game-canvas {
 }
 
 .snake-gameover-content h2 {
-    font-size: 2rem;
+    font-size: clamp(1.2rem, 4vmin, 2rem);
     letter-spacing: 0.15em;
-    margin-bottom: 16px;
+    margin-bottom: clamp(8px, 2vmin, 16px);
     text-shadow: 0 0 20px rgba(255, 60, 95, 0.5);
 }
 
 .snake-gameover-content p {
-    font-size: 1rem;
+    font-size: clamp(0.7rem, 2vmin, 1rem);
     color: #39ff14;
-    margin: 6px 0;
+    margin: clamp(3px, 0.8vmin, 6px) 0;
     letter-spacing: 0.08em;
 }
 
 .snake-gameover-content strong {
     color: #7dff5e;
-    font-size: 1.2rem;
+    font-size: clamp(0.85rem, 2.5vmin, 1.2rem);
 }
 
 .snake-gameover-hint {
-    margin-top: 20px !important;
-    font-size: 0.75rem !important;
+    margin-top: clamp(10px, 2.5vmin, 20px) !important;
+    font-size: clamp(0.55rem, 1.5vmin, 0.75rem) !important;
     color: rgba(57, 255, 20, 0.4) !important;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -540,8 +552,15 @@ canvas#game-canvas {
 }
 
 @keyframes comingSoonBounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
 }
 
 .coming-soon-content h2 {
@@ -610,8 +629,15 @@ canvas#game-canvas {
 }
 
 @keyframes introFadeIn {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .intro-text {
@@ -637,8 +663,15 @@ canvas#game-canvas {
 }
 
 @keyframes introCursorBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
 .intro-skip-btn {
@@ -670,8 +703,15 @@ canvas#game-canvas {
 }
 
 @keyframes introContPulse {
-    0%, 100% { box-shadow: 0 0 0 rgba(86, 197, 150, 0); }
-    50% { box-shadow: 0 0 20px rgba(86, 197, 150, 0.15); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 rgba(86, 197, 150, 0);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(86, 197, 150, 0.15);
+    }
 }
 
 /* Night mode intro */
@@ -742,29 +782,88 @@ body.night-mode .intro-skip-btn.continue {
     animation: menuParticleFloat linear infinite;
 }
 
-.menu-particle:nth-child(1) { left: 10%; animation-duration: 12s; animation-delay: 0s; width: 4px; height: 4px; }
-.menu-particle:nth-child(2) { left: 25%; animation-duration: 15s; animation-delay: 2s; width: 8px; height: 8px; }
-.menu-particle:nth-child(3) { left: 40%; animation-duration: 10s; animation-delay: 4s; width: 5px; height: 5px; }
-.menu-particle:nth-child(4) { left: 55%; animation-duration: 14s; animation-delay: 1s; width: 7px; height: 7px; }
-.menu-particle:nth-child(5) { left: 70%; animation-duration: 11s; animation-delay: 3s; width: 4px; height: 4px; }
-.menu-particle:nth-child(6) { left: 85%; animation-duration: 13s; animation-delay: 5s; width: 6px; height: 6px; }
-.menu-particle:nth-child(7) { left: 15%; animation-duration: 16s; animation-delay: 6s; width: 3px; height: 3px; }
-.menu-particle:nth-child(8) { left: 60%; animation-duration: 9s;  animation-delay: 7s; width: 5px; height: 5px; }
+.menu-particle:nth-child(1) {
+    left: 10%;
+    animation-duration: 12s;
+    animation-delay: 0s;
+    width: 4px;
+    height: 4px;
+}
+
+.menu-particle:nth-child(2) {
+    left: 25%;
+    animation-duration: 15s;
+    animation-delay: 2s;
+    width: 8px;
+    height: 8px;
+}
+
+.menu-particle:nth-child(3) {
+    left: 40%;
+    animation-duration: 10s;
+    animation-delay: 4s;
+    width: 5px;
+    height: 5px;
+}
+
+.menu-particle:nth-child(4) {
+    left: 55%;
+    animation-duration: 14s;
+    animation-delay: 1s;
+    width: 7px;
+    height: 7px;
+}
+
+.menu-particle:nth-child(5) {
+    left: 70%;
+    animation-duration: 11s;
+    animation-delay: 3s;
+    width: 4px;
+    height: 4px;
+}
+
+.menu-particle:nth-child(6) {
+    left: 85%;
+    animation-duration: 13s;
+    animation-delay: 5s;
+    width: 6px;
+    height: 6px;
+}
+
+.menu-particle:nth-child(7) {
+    left: 15%;
+    animation-duration: 16s;
+    animation-delay: 6s;
+    width: 3px;
+    height: 3px;
+}
+
+.menu-particle:nth-child(8) {
+    left: 60%;
+    animation-duration: 9s;
+    animation-delay: 7s;
+    width: 5px;
+    height: 5px;
+}
 
 @keyframes menuParticleFloat {
     0% {
         transform: translateY(100vh) scale(0);
         opacity: 0;
     }
+
     10% {
         opacity: 0.8;
     }
+
     50% {
         opacity: 0.4;
     }
+
     90% {
         opacity: 0.1;
     }
+
     100% {
         transform: translateY(-20vh) scale(1.5);
         opacity: 0;
@@ -782,8 +881,15 @@ body.night-mode .intro-skip-btn.continue {
 }
 
 @keyframes menuFadeIn {
-    0% { opacity: 0; transform: translateY(30px) scale(0.95); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 /* --- Logo --- */
@@ -805,8 +911,15 @@ body.night-mode .intro-skip-btn.continue {
 }
 
 @keyframes menuLogoFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
 }
 
 .menu-logo-glow {
@@ -822,8 +935,17 @@ body.night-mode .intro-skip-btn.continue {
 }
 
 @keyframes menuGlowPulse {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.15); opacity: 1; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 /* --- Buttons --- */
@@ -892,8 +1014,15 @@ body.night-mode .intro-skip-btn.continue {
 }
 
 @keyframes menuPlayPulse {
-    0%, 100% { box-shadow: 0 4px 20px rgba(86, 197, 150, 0.4), 0 0 60px rgba(86, 197, 150, 0.15); }
-    50% { box-shadow: 0 4px 30px rgba(86, 197, 150, 0.6), 0 0 80px rgba(86, 197, 150, 0.25); }
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(86, 197, 150, 0.4), 0 0 60px rgba(86, 197, 150, 0.15);
+    }
+
+    50% {
+        box-shadow: 0 4px 30px rgba(86, 197, 150, 0.6), 0 0 80px rgba(86, 197, 150, 0.25);
+    }
 }
 
 .menu-btn-icon {
@@ -957,12 +1086,12 @@ body.night-mode .intro-skip-btn.continue {
     transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.menu-toggle-switch input:checked + .menu-toggle-slider {
+.menu-toggle-switch input:checked+.menu-toggle-slider {
     background: rgba(100, 120, 200, 0.25);
     border-color: rgba(100, 120, 200, 0.4);
 }
 
-.menu-toggle-switch input:checked + .menu-toggle-slider::before {
+.menu-toggle-switch input:checked+.menu-toggle-slider::before {
     transform: translateX(24px);
     background: linear-gradient(135deg, #667eea, #764ba2);
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.5);
@@ -1338,8 +1467,15 @@ body.night-mode #maze-door-locked-overlay .coming-soon-content p {
 }
 
 @keyframes winBounce {
-    0%, 100% { transform: translateY(0) scale(1); }
-    50% { transform: translateY(-12px) scale(1.1); }
+
+    0%,
+    100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-12px) scale(1.1);
+    }
 }
 
 .win-title {
@@ -1358,8 +1494,13 @@ body.night-mode #maze-door-locked-overlay .coming-soon-content p {
 }
 
 @keyframes winGlow {
-    0% { filter: drop-shadow(0 4px 20px rgba(168, 230, 207, 0.4)); }
-    100% { filter: drop-shadow(0 4px 40px rgba(255, 215, 0, 0.6)); }
+    0% {
+        filter: drop-shadow(0 4px 20px rgba(168, 230, 207, 0.4));
+    }
+
+    100% {
+        filter: drop-shadow(0 4px 40px rgba(255, 215, 0, 0.6));
+    }
 }
 
 .win-subtitle {
@@ -1601,28 +1742,34 @@ body.touch-device #touch-buttons {
         bottom: 20px;
         left: 16px;
     }
+
     #touch-joystick-knob {
         width: 40px;
         height: 40px;
     }
+
     .touch-btn-jump {
         width: 58px;
         height: 58px;
     }
+
     .touch-btn-sprint,
     .touch-btn-interact {
         width: 48px;
         height: 48px;
     }
+
     #touch-buttons {
         bottom: 20px;
         right: 16px;
         gap: 10px;
     }
+
     .touch-btn-icon {
         font-size: 1rem;
     }
+
     .touch-btn-label {
         display: none;
     }
-}
+}

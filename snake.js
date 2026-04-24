@@ -407,20 +407,20 @@ function _createDpad() {
         style.textContent = `
             .snake-dpad {
                 display: grid;
-                grid-template-columns: 52px 52px 52px;
-                grid-template-rows: 52px 52px;
-                gap: 6px;
+                grid-template-columns: repeat(3, clamp(36px, 9vmin, 52px));
+                grid-template-rows: clamp(36px, 9vmin, 52px);
+                gap: clamp(3px, 0.8vmin, 6px);
                 justify-content: center;
-                padding: 10px 0 6px;
+                padding: clamp(4px, 1vmin, 10px) 0 clamp(2px, 0.5vmin, 6px);
             }
             .snake-dpad-btn {
-                width: 52px;
-                height: 52px;
+                width: clamp(36px, 9vmin, 52px);
+                height: clamp(36px, 9vmin, 52px);
                 border-radius: 10px;
                 background: rgba(57, 255, 20, 0.08);
                 border: 1.5px solid rgba(57, 255, 20, 0.25);
                 color: #39ff14;
-                font-size: 1.3rem;
+                font-size: clamp(0.9rem, 2.5vmin, 1.3rem);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -438,7 +438,7 @@ function _createDpad() {
                 background: rgba(255, 60, 95, 0.12) !important;
                 border-color: rgba(255, 60, 95, 0.35) !important;
                 color: #ff3c5f !important;
-                font-size: 1rem;
+                font-size: clamp(0.7rem, 2vmin, 1rem);
             }
             .snake-dpad-exit:active {
                 background: rgba(255, 60, 95, 0.3) !important;
@@ -450,16 +450,27 @@ function _createDpad() {
                 text-align: center;
                 color: rgba(57, 255, 20, 0.35);
                 font-family: 'Courier New', monospace;
-                font-size: 0.65rem;
+                font-size: clamp(0.45rem, 1.2vmin, 0.65rem);
                 letter-spacing: 0.1em;
                 text-transform: uppercase;
-                padding: 4px 0 2px;
+                padding: clamp(2px, 0.5vmin, 4px) 0 clamp(1px, 0.3vmin, 2px);
+            }
+
+            /* Landscape: position d-pad to the right of canvas */
+            @media (orientation: landscape) and (pointer: coarse) {
+                .snake-touch-dpad-wrap {
+                    position: fixed;
+                    right: clamp(8px, 2vw, 24px);
+                    bottom: clamp(8px, 3vh, 30px);
+                    z-index: 9999;
+                }
             }
         `;
         document.head.appendChild(style);
     }
 
     touchDpad = document.createElement('div');
+    touchDpad.className = 'snake-touch-dpad-wrap';
     touchDpad.innerHTML = `
         <div class="snake-dpad">
             <div class="snake-dpad-spacer"></div>

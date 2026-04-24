@@ -14,6 +14,138 @@
 </head>
 
 <body>
+    <!-- Mobile Phone Detection Popup -->
+    <div id="mobile-warning" style="display:none;">
+        <div class="mw-backdrop"></div>
+        <div class="mw-dialog">
+            <div class="mw-icon">📱</div>
+            <h2 class="mw-title">Mobile Phone Detected</h2>
+            <p class="mw-text">For the best experience, we recommend using:</p>
+            <div class="mw-devices">
+                <span>🖥️ PC / Laptop</span>
+                <span>📟 iPad</span>
+                <span>📟 Android Tablet</span>
+            </div>
+            <p class="mw-subtext">The game is optimised for larger screens with better controls.</p>
+            <button id="mw-dismiss" class="mw-btn">Continue Anyway</button>
+        </div>
+    </div>
+    <style>
+        #mobile-warning {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+        }
+        .mw-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(4, 10, 6, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .mw-dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(90vw, 360px);
+            padding: clamp(20px, 5vmin, 32px);
+            background: linear-gradient(145deg, rgba(10, 26, 15, 0.95), rgba(8, 18, 12, 0.98));
+            border: 1.5px solid rgba(168, 230, 207, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 0 60px rgba(86, 197, 150, 0.08), 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            font-family: 'Outfit', system-ui, sans-serif;
+            animation: mw-slide-in 0.4s ease-out;
+        }
+        @keyframes mw-slide-in {
+            from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .mw-icon {
+            font-size: clamp(2rem, 8vmin, 3rem);
+            margin-bottom: 8px;
+        }
+        .mw-title {
+            color: #a8e6cf;
+            font-size: clamp(1rem, 3.5vmin, 1.3rem);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin: 0 0 10px;
+        }
+        .mw-text {
+            color: rgba(168, 230, 207, 0.7);
+            font-size: clamp(0.75rem, 2.5vmin, 0.9rem);
+            margin: 0 0 12px;
+        }
+        .mw-devices {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .mw-devices span {
+            display: block;
+            padding: 8px 14px;
+            background: rgba(168, 230, 207, 0.06);
+            border: 1px solid rgba(168, 230, 207, 0.1);
+            border-radius: 8px;
+            color: #a8e6cf;
+            font-size: clamp(0.75rem, 2.2vmin, 0.85rem);
+            font-weight: 600;
+            letter-spacing: 0.04em;
+        }
+        .mw-subtext {
+            color: rgba(168, 230, 207, 0.4);
+            font-size: clamp(0.6rem, 1.8vmin, 0.75rem);
+            margin: 0 0 16px;
+            line-height: 1.4;
+        }
+        .mw-btn {
+            display: inline-block;
+            padding: 10px 28px;
+            background: rgba(86, 197, 150, 0.15);
+            border: 1.5px solid rgba(168, 230, 207, 0.3);
+            border-radius: 10px;
+            color: #a8e6cf;
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(0.75rem, 2.2vmin, 0.9rem);
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+        }
+        .mw-btn:hover, .mw-btn:active {
+            background: rgba(86, 197, 150, 0.3);
+            border-color: rgba(168, 230, 207, 0.5);
+            box-shadow: 0 0 20px rgba(86, 197, 150, 0.2);
+        }
+    </style>
+    <script>
+        (function() {
+            // Only show once per session
+            if (sessionStorage.getItem('mw-dismissed')) return;
+            // Detect mobile PHONE (not tablet): small screen + touch
+            var ua = navigator.userAgent || '';
+            var isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+            var isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 600;
+            var isPhone = /iPhone|Android.*Mobile|webOS|iPod|BlackBerry|Windows Phone/i.test(ua);
+            if (isTouch && isSmallScreen && isPhone) {
+                var el = document.getElementById('mobile-warning');
+                if (el) el.style.display = 'block';
+                document.getElementById('mw-dismiss').addEventListener('click', function() {
+                    el.style.display = 'none';
+                    sessionStorage.setItem('mw-dismissed', '1');
+                });
+                document.getElementById('mw-dismiss').addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    el.style.display = 'none';
+                    sessionStorage.setItem('mw-dismissed', '1');
+                });
+            }
+        })();
+    </script>
+
     <!-- Main Menu -->
     <div id="main-menu">
         <div class="menu-particles">
